@@ -1,5 +1,6 @@
 package com.hyun.demo.entity
 
+import com.hyun.demo.constant.Progress
 import jakarta.persistence.*
 
 @Entity
@@ -9,6 +10,11 @@ data class LearningHistory(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "learning_history_id")
     var id: Long? = null,
+
     val userId: Long,
-    val word: String,
+
+    var word: String,
+
+    @Enumerated(EnumType.STRING)
+    val isDone:Progress = Progress.NOT_STARTED
 ) : BaseEntity()

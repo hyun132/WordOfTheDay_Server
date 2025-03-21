@@ -1,36 +1,60 @@
 package com.hyun.demo.service
 
-import org.springframework.ai.chat.client.ChatClient
+import com.hyun.demo.dto.WordDTO
+import com.hyun.demo.entity.LearningHistory
+import com.hyun.demo.repository.ChatRepository
+import com.hyun.demo.repository.LearningHistoryRepository
+import com.hyun.demo.util.toDto
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Service
-class ChatService(private val chatClient: ChatClient) {
+class ChatService(
+    private val chatRepository: ChatRepository,
+    private val repository: LearningHistoryRepository
+) {
 
     fun plainTextChat(message: String): String {
-        return chatClient
-            .prompt()
-            .user(message)
-            .call()
-            .content() ?: ""
+        return chatRepository.plainTextChat(message)
     }
 
-    fun getWord(subject: String, target: String): String {
-        return chatClient
-            .prompt()
-            .user("Show me a word about $subject for $target. Just one word.")
-            .call()
-            .content() ?: ""
+    @Transactional
+    fun getWord(userId: Long, subject: String, difficulty: String): WordDTO {
+        val word = chatRepository.getWord(userId, subject, difficulty)
+
+        val start = LocalDate.now().atStartOfDay()
+        val end = LocalDate.now().atTime(LocalTime.MAX)
+        val list = repository.findByUserIdAndCreatedDateTimeBetween(userId = userId, startOfDay = start, endOfDay = end)
+        if (list.isNotEmpty()) {
+            val savedWord = list.first()
+            savedWord.word = word.word
+        } else {
+            repository.save(LearningHistory(userId = userId, word = word.word))
+        }
+
+        return word.toDto()
     }
 
-    fun getSentences(word: String, target: String): List<String> {
-        val answer = chatClient
-            .prompt()
-            .user("Show me 5 useful sample sentences using $word for $target. Just Numbered sentences only.")
-            .call()
-            .content()
+    fun getTodaysWord(userId: Long, subject: String, difficulty: String): WordDTO {
+        val start = LocalDate.now().atStartOfDay()
+        val end = LocalDate.now().atTime(LocalTime.MAX)
+        val list = repository.findByUserIdAndCreatedDateTimeBetween(userId = userId, startOfDay = start, endOfDay = end)
+        if (list.isNotEmpty()) {
+            val savedWord = list.firstOrNull()
+            if (savedWord != null) {
+                return WordDTO(word = savedWord.word)
+            }
+        }
+        val response = chatRepository.getTodaysWord(userId, subject, difficulty)
+        repository.save(LearningHistory(userId = userId, word = response.word))
 
-        val list = answer?.split(",")?.filter { it.matches(Regex("^\\d+\\..*")) }?.toList() ?: emptyList()
+        return response.toDto()
+    }
 
-        return list
+    fun getSentences(word: String, difficulty: String): List<String> {
+        val answer = chatRepository.getSentences(word, difficulty)
+        return answer
     }
 }
