@@ -79,13 +79,24 @@ class ChatRepository(private val chatClient: ChatClient) {
     fun getSentences(word: String, difficulty: String): List<String> {
         val answer = chatClient
             .prompt()
-            .user("Show me 5 useful sample sentences using $word for $difficulty. Just Numbered sentences only.")
+            .user("Show me 5 useful sample sentences using '$word' for $difficulty. Just Numbered sentences only.")
             .call()
             .content()
 
 
-        val list = answer?.split(",")?.filter { it.matches(Regex("^\\d+\\..*")) }?.toList() ?: emptyList()
-
+        val list = answer?.split("\n")?.map { it.trim() }?.toList() ?: emptyList()
+        val result = mutableListOf<String>()
+        for (line in list) {
+            if (Regex("^\\d+\\.\\s").containsMatchIn(line)) {
+                // 숫자. 으로 시작하면 새 문장 시작
+                if (line.isNotEmpty() || line.isNotBlank()) result.add(line)
+            } else {
+                if (result.isEmpty()) continue
+                if (result.isNotEmpty()) {
+                    result[result.lastIndex] = result.last() + " " + line.trim()
+                }
+            }
+        }
         return list
     }
 

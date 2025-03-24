@@ -1,11 +1,11 @@
 package com.hyun.demo.controller
 
+import com.hyun.demo.dto.SentenceDTO
+import com.hyun.demo.dto.SentencesDTO
 import com.hyun.demo.dto.WordDTO
 import com.hyun.demo.service.ChatService
-import com.hyun.demo.service.LearningHistoryService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
@@ -38,7 +38,10 @@ class ChatController(
     }
 
     @GetMapping("/sentence")
-    fun getSentences(@RequestParam("word") word: String, @RequestParam("difficulty") difficulty: String): List<String> {
-        return service.getSentences(word, difficulty)
+    fun getSentences(
+        @RequestParam("word") word: String,
+        @RequestParam("difficulty") difficulty: String
+    ): ResponseEntity<SentencesDTO> {
+        return ResponseEntity.ok(service.getSentences(word, difficulty))
     }
 }

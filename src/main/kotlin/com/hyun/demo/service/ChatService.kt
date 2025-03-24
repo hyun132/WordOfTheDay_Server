@@ -1,10 +1,12 @@
 package com.hyun.demo.service
 
+import com.hyun.demo.dto.SentenceDTO
+import com.hyun.demo.dto.SentencesDTO
 import com.hyun.demo.dto.WordDTO
 import com.hyun.demo.entity.LearningHistory
 import com.hyun.demo.repository.ChatRepository
 import com.hyun.demo.repository.LearningHistoryRepository
-import com.hyun.demo.util.toDto
+import com.hyun.demo.util.toDTO
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -34,7 +36,7 @@ class ChatService(
             repository.save(LearningHistory(userId = userId, word = word.word))
         }
 
-        return word.toDto()
+        return word.toDTO()
     }
 
     fun getTodaysWord(userId: Long, subject: String, difficulty: String): WordDTO {
@@ -50,11 +52,11 @@ class ChatService(
         val response = chatRepository.getTodaysWord(userId, subject, difficulty)
         repository.save(LearningHistory(userId = userId, word = response.word))
 
-        return response.toDto()
+        return response.toDTO()
     }
 
-    fun getSentences(word: String, difficulty: String): List<String> {
-        val answer = chatRepository.getSentences(word, difficulty)
-        return answer
+    fun getSentences(word: String, difficulty: String): SentencesDTO {
+        val list = chatRepository.getSentences(word, difficulty).map { SentenceDTO(sentence = it) }
+        return SentencesDTO(sentences = list)
     }
 }
