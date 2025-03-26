@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface BookmarkRepository : JpaRepository<Bookmark, Long> {
     fun findAllByUserIdOrderByCreatedDateTimeDesc(userId: Long): List<Bookmark>
     fun countByUserId(userId: Long): Long
+    fun deleteBookmarkByUserIdAndSentence(userId: Long, sentence: String): Int
 }

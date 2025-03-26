@@ -6,6 +6,7 @@ import com.hyun.demo.entity.Bookmark
 import com.hyun.demo.repository.BookmarkRepository
 import com.hyun.demo.util.toDTO
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BookmarkService(private val bookmarkRepository: BookmarkRepository) {
@@ -24,5 +25,14 @@ class BookmarkService(private val bookmarkRepository: BookmarkRepository) {
                 userId = userId
             )
         ).toDTO()
+    }
+
+    @Transactional
+    fun deleteBookMark(userId: Long, bookMark: BookmarkDTO): BookmarkDTO {
+        bookmarkRepository.deleteBookmarkByUserIdAndSentence(
+            sentence = bookMark.sentence,
+            userId = userId
+        )
+        return bookMark
     }
 }

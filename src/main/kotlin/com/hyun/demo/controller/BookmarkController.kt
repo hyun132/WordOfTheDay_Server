@@ -31,4 +31,13 @@ class BookmarkController(
 
         return ResponseEntity.ok(list)
     }
+
+    @DeleteMapping
+    fun deleteBookmarks(@RequestBody bookmarkDTO: BookmarkDTO): ResponseEntity<BookmarkDTO>{
+        val userId = 1L
+
+        val list = bookmarkService.deleteBookMark(userId = userId, bookMark = bookmarkDTO)
+
+        return ResponseEntity.ok(list)
+    }
 }
