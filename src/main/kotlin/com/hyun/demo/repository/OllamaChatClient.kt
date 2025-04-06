@@ -1,6 +1,7 @@
 package com.hyun.demo.repository
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.hyun.demo.dto.OllamaMessage
 import com.hyun.demo.dto.OllamaRequest
 import com.hyun.demo.entity.Word
@@ -10,11 +11,11 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
-@Repository
-class ChatRepository(private val chatClient: ChatClient) {
+@Component
+class OllamaChatClient(private val chatClient: ChatClient) {
 
     fun plainTextChat(message: String): String {
         return chatClient
@@ -77,27 +78,32 @@ class ChatRepository(private val chatClient: ChatClient) {
     }
 
     fun getSentences(word: String, difficulty: String): List<String> {
-        val answer = chatClient
+        val prompt = """
+Return 5 useful English sentences using the word '$word' for $difficulty learners.
+Respond only with a valid JSON like below:
+
+[
+  "First sentence.",
+  "Second sentence.",
+  "Third sentence.",
+  "Fourth sentence.",
+  "Fifth sentence."
+]
+"""
+
+        val raw = chatClient
             .prompt()
-            .user("Show me 5 useful sample sentences using '$word' for $difficulty. Just Numbered sentences only.")
+            .user(prompt)
             .call()
             .content()
 
-
-        val list = answer?.split("\n")?.map { it.trim() }?.toList() ?: emptyList()
-        val result = mutableListOf<String>()
-        for (line in list) {
-            if (Regex("^\\d+\\.\\s").containsMatchIn(line)) {
-                // 숫자. 으로 시작하면 새 문장 시작
-                if (line.isNotEmpty() || line.isNotBlank()) result.add(line)
-            } else {
-                if (result.isEmpty()) continue
-                if (result.isNotEmpty()) {
-                    result[result.lastIndex] = result.last() + " " + line.trim()
-                }
-            }
+        val fixedRaw = raw?.substringAfter("[")?.let { "[" + it } ?: "[]"
+        val mapper = jacksonObjectMapper()
+        val result: List<String> = try {
+            mapper.readValue(fixedRaw?:"")
+        } catch (e: Exception) {
+            emptyList()
         }
-        return list
+        return result
     }
-
 }

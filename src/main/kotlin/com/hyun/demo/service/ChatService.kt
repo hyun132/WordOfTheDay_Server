@@ -4,7 +4,7 @@ import com.hyun.demo.dto.SentenceDTO
 import com.hyun.demo.dto.SentencesDTO
 import com.hyun.demo.dto.WordDTO
 import com.hyun.demo.entity.LearningHistory
-import com.hyun.demo.repository.ChatRepository
+import com.hyun.demo.repository.OllamaChatClient
 import com.hyun.demo.repository.LearningHistoryRepository
 import com.hyun.demo.util.toDTO
 import jakarta.transaction.Transactional
@@ -14,17 +14,17 @@ import java.time.LocalTime
 
 @Service
 class ChatService(
-    private val chatRepository: ChatRepository,
+    private val chatClient: OllamaChatClient,
     private val repository: LearningHistoryRepository
 ) {
 
     fun plainTextChat(message: String): String {
-        return chatRepository.plainTextChat(message)
+        return chatClient.plainTextChat(message)
     }
 
     @Transactional
     fun getWord(userId: Long, subject: String, difficulty: String): WordDTO {
-        val word = chatRepository.getWord(userId, subject, difficulty)
+        val word = chatClient.getWord(userId, subject, difficulty)
 
         val start = LocalDate.now().atStartOfDay()
         val end = LocalDate.now().atTime(LocalTime.MAX)
@@ -49,14 +49,14 @@ class ChatService(
                 return WordDTO(word = savedWord.word)
             }
         }
-        val response = chatRepository.getTodaysWord(userId, subject, difficulty)
+        val response = chatClient.getWord(userId, subject, difficulty)
         repository.save(LearningHistory(userId = userId, word = response.word))
 
         return response.toDTO()
     }
 
     fun getSentences(word: String, difficulty: String): SentencesDTO {
-        val list = chatRepository.getSentences(word, difficulty).map { SentenceDTO(sentence = it) }
+        val list = chatClient.getSentences(word, difficulty).map { SentenceDTO(sentence = it) }
         return SentencesDTO(sentences = list)
     }
 }
