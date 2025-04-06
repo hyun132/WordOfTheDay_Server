@@ -28,6 +28,7 @@ dependencies {
 	implementation("org.springframework.ai:spring-ai-ollama-spring-boot-starter")
 //	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA 사용
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.h2database:h2") // H2 데이터베이스 사용
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
