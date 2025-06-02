@@ -1,5 +1,6 @@
 package com.hyun.demo.controller
 
+import com.hyun.demo.dto.LearningHistoriesResponse
 import com.hyun.demo.dto.LearningHistoryDTO
 import com.hyun.demo.dto.WordDTO
 import com.hyun.demo.service.LearningHistoryService
@@ -7,13 +8,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/users/{userId}/learning-history")
+@RequestMapping("/me/learning-history")
 class LearningHistoryController(
     private val learningHistoryService: LearningHistoryService
 ) {
 
-    @PostMapping("/")
-    fun createHistory(@PathVariable userId: Long, @RequestBody wordDTO: WordDTO): ResponseEntity<LearningHistoryDTO> {
+    @PostMapping
+    fun createHistory(@RequestBody wordDTO: WordDTO): ResponseEntity<LearningHistoryDTO> {
         val userId = 1L
 
 //        if (authentication.name.toLong() != userId) {
@@ -24,16 +25,24 @@ class LearningHistoryController(
         return ResponseEntity.ok(result)
     }
 
-    @GetMapping("/")
-    fun getLearningHistory(@PathVariable userId: Long): ResponseEntity<List<LearningHistoryDTO>> {
+    @GetMapping
+    fun getLearningHistory(@RequestParam("yearMonth") yearMonth: String): ResponseEntity<LearningHistoriesResponse> {
         val userId = 1L
 
 //        if (authentication.name.toLong() != userId) {
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
 //        }
 
-        val list = learningHistoryService.getAllHistory(userId = userId)
+        val list = learningHistoryService.getAllHistory(userId = userId, yearMonth)
 
         return ResponseEntity.ok(list)
+    }
+
+    @GetMapping("/count")
+    fun getLearningHistoryCount(): ResponseEntity<Long> {
+        val userId = 1L
+
+        val count = learningHistoryService.getWordHistoryCount(userId = userId)
+        return ResponseEntity.ok(count)
     }
 }
