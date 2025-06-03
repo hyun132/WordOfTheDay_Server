@@ -13,6 +13,8 @@ data class AppUser(
     var id: Long? = null,
 
     @Column(unique = true, nullable = false)
+    var email: String,
+
     var username: String,
 
     var password: String,

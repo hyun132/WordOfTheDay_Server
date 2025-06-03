@@ -5,6 +5,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "learning_history")
+@Access(AccessType.FIELD)
 data class LearningHistory(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

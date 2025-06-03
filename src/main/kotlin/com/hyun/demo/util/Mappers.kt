@@ -18,11 +18,12 @@ fun LearningHistory.toDTO(): LearningHistoryDTO {
     )
 }
 
-fun AppUser.toDto(): AppUserDTO {
+fun AppUser.toDTO(): AppUserDTO {
     return AppUserDTO(
         username = username,
-        id = id ?: -1,
-        difficulty = difficulty.name
+        email = email,
+        difficulty = difficulty.name,
+        createdAt = createdDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     )
 }
 

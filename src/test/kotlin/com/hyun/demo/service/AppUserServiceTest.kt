@@ -13,7 +13,7 @@ import kotlin.test.Test
 class AppUserServiceTest(
     @Autowired val appUserRepository: AppUserRepository
 ) {
-    val user1 = AppUser(username = "tester1", password = "pw1", difficulty = Difficulty.ADVANCED)
+    val user1 = AppUser(username = "tester1", password = "pw1", difficulty = Difficulty.ADVANCED, email = "test@test.com")
 
     @Test
     fun createUser() {
@@ -24,7 +24,7 @@ class AppUserServiceTest(
     @Test
     fun findUser() {
         val createdUser = appUserRepository.save(user1)
-        val resultUser = appUserRepository.findByUsername("tester1")
+        val resultUser = appUserRepository.findByEmail("test@test.com")
         assert(createdUser == resultUser)
     }
 

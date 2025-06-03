@@ -16,10 +16,10 @@ class AppUserController(private val appUserService: AppUserService) {
         return ResponseEntity.ok(user)
     }
 
-    @GetMapping("/{username}")
-    fun getUser(@PathVariable username: String): ResponseEntity<AppUserDTO> {
+    @GetMapping("/{email}")
+    fun getUser(@PathVariable email: String): ResponseEntity<AppUserDTO> {
         var userId = 1
-        val user = appUserService.getUser(username = username)
+        val user = appUserService.getUser(email = email)
         return ResponseEntity.ok(user)
     }
 
