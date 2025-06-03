@@ -9,11 +9,12 @@ import com.hyun.demo.entity.Bookmark
 import com.hyun.demo.entity.LearningHistory
 import com.hyun.demo.entity.Word
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 fun LearningHistory.toDTO(): LearningHistoryDTO {
     return LearningHistoryDTO(
         word = word,
-        learnedAt = createdDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        learnedAt = createdDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.KOREA))
     )
 }
 
