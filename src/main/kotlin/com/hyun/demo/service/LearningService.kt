@@ -16,7 +16,7 @@ class LearningService(
         val userEmbedding = ollamaClient.getEmbedding(request.userAnswer)
 
         val similarity = cosineSimilarity(correctEmbedding, userEmbedding)
-        val isCorrect = similarity > 0.9f
+        val isCorrect = similarity > 0.8f
 
         return AnswerCheckResponse(
             isCorrect = isCorrect,
