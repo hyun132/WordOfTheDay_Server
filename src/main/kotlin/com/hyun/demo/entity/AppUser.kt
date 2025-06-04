@@ -19,6 +19,8 @@ data class AppUser(
 
     var password: String,
 
+    var topic: String,
+
     @Enumerated(EnumType.STRING) // ENUM을 문자열로 저장
     @Column(nullable = false)
     var difficulty: Difficulty = Difficulty.BEGINNER

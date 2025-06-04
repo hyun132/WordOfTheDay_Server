@@ -23,7 +23,8 @@ fun AppUser.toDTO(): AppUserDTO {
         username = username,
         email = email,
         difficulty = difficulty.name,
-        createdAt = createdDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        createdAt = createdDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+        topic = topic
     )
 }
 
