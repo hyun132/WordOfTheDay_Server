@@ -16,7 +16,7 @@ class LearningHistoryServiceTest(
     @Autowired val learningHistoryRepository: LearningHistoryRepository,
     @Autowired val appUserRepository: AppUserRepository
 ) {
-    val user1 = AppUser(id = 1, username = "tester1", password = "pw1", difficulty = Difficulty.ADVANCED)
+    val user1 = AppUser(id = 1, username = "tester1", password = "pw1", difficulty = Difficulty.ADVANCED, topic = "", email = "")
 
     @Test
     fun createHistory() {
