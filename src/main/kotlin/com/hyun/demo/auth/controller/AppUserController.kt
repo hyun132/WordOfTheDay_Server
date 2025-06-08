@@ -45,7 +45,8 @@ class AppUserController(private val appUserService: AppUserService) {
 
     @PostMapping("/update")
     fun update(@RequestBody updateRequest: PasswordUpdateRequest): ResponseEntity<UserInfoUpdateResponse> {
-        val email = appUserService.updateUser(updateRequest)
+        val id = 1
+        val email = appUserService.updatePassword(1,updateRequest)
         if (email == null) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.")
         } else
