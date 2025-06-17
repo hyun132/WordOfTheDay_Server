@@ -13,12 +13,6 @@ data class RegisterAppUserRequest(
     @field:NotBlank(message = "이메일은 비워둘 수 없습니다.")
     var email: String,
 
-    var username: String,
-
     @field:NotBlank(message = "비밀번호를 입력해주세요.")
     var password: String,
-
-    var topic: String = "school",
-
-    var difficulty: String = Difficulty.BEGINNER.name
 )

@@ -1,6 +1,7 @@
 package com.hyun.demo.auth.controller
 
 import com.hyun.demo.auth.dto.AppUserDTO
+import com.hyun.demo.auth.dto.request.LoginRequest
 import com.hyun.demo.auth.dto.request.PasswordUpdateRequest
 import com.hyun.demo.auth.dto.request.RegisterAppUserRequest
 import com.hyun.demo.auth.dto.response.RegisterAppUserResponse
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 class AppUserController(private val appUserService: AppUserService) {
 
     @PostMapping("/signup")
@@ -33,8 +34,8 @@ class AppUserController(private val appUserService: AppUserService) {
         )
     }
 
-    @GetMapping("/{email}")
-    fun getUser(@PathVariable email: String): ResponseEntity<AppUserDTO> {
+    @GetMapping("/check-email?email={email}")
+    fun checkValidEmail(@PathVariable email: String): ResponseEntity<AppUserDTO> {
         var userId = 1
         val user = appUserService.getUser(email = email) ?: throw ResponseStatusException(
             HttpStatus.NOT_FOUND,
@@ -43,10 +44,20 @@ class AppUserController(private val appUserService: AppUserService) {
         return ResponseEntity.ok(user)
     }
 
+    @PostMapping("/login")
+    fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<AppUserDTO> {
+        var userId = 1L
+        val user = appUserService.login(userId = userId, loginRequest) ?: throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "사용자를 찾을 수 없습니다."
+        )
+        return ResponseEntity.ok(user)
+    }
+
     @PostMapping("/update")
-    fun update(@RequestBody updateRequest: PasswordUpdateRequest): ResponseEntity<UserInfoUpdateResponse> {
+    fun updatePassword(@RequestBody updateRequest: PasswordUpdateRequest): ResponseEntity<UserInfoUpdateResponse> {
         val id = 1
-        val email = appUserService.updatePassword(1,updateRequest)
+        val email = appUserService.updatePassword(1, updateRequest)
         if (email == null) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.")
         } else

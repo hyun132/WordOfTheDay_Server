@@ -1,6 +1,7 @@
 package com.hyun.demo.auth.service
 
 import com.hyun.demo.auth.dto.AppUserDTO
+import com.hyun.demo.auth.dto.request.LoginRequest
 import com.hyun.demo.auth.dto.request.PasswordUpdateRequest
 import com.hyun.demo.auth.dto.request.RegisterAppUserRequest
 import com.hyun.demo.auth.entity.AppUser
@@ -10,7 +11,6 @@ import com.hyun.demo.security.HashEncoder
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrElse
 
 @Service
 class AppUserService(
@@ -29,8 +29,24 @@ class AppUserService(
         return appUserRepository.save(user).toDTO()
     }
 
+
     fun getUser(email: String): AppUserDTO? {
         return appUserRepository.findByEmail(email)?.toDTO()
+    }
+
+    fun login(userId: Long, loginRequest: LoginRequest): AppUserDTO? {
+        val user = appUserRepository.findById(userId)
+            .orElseThrow { BadCredentialsException("사용자 인증에 실패했습니다.") }
+
+        check(hashEncoder.matches(loginRequest.password, user.password)) {
+            "사용자 인증에 실패했습니다."
+        }
+
+        return appUserRepository.findByEmail(user.email)?.toDTO()
+    }
+
+    fun checkEmailDuplication(email: String): Boolean {
+        return appUserRepository.existsByEmail(email = email)
     }
 
     @Transactional
