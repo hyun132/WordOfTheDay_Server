@@ -4,6 +4,7 @@ import com.hyun.demo.word.dto.ProfileDTO
 import com.hyun.demo.word.dto.request.ProfileUpdateRequest
 import com.hyun.demo.word.service.ProfileService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,33 +15,29 @@ class ProfileController(
 
     @PostMapping
     fun createProfile(@RequestBody profileDTO: ProfileUpdateRequest): ResponseEntity<ProfileDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
-//        if (authentication.name.toLong() != userId) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-//        }
-
-        val result = profileService.createProfile(id = userId, request = profileDTO)
+        val result = profileService.createProfile(id = userId.toLong(), request = profileDTO)
         return ResponseEntity.ok(result)
     }
 
-    @PostMapping("update")
+    @PostMapping("/update")
     fun updateProfile(@RequestBody request: ProfileUpdateRequest): ResponseEntity<ProfileDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
-//        if (authentication.name.toLong() != userId) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-//        }
-
-        val result = profileService.updateProfile(id = userId, request = request)
+        val result = profileService.updateProfile(id = userId.toLong(), request = request)
         return ResponseEntity.ok(result)
     }
 
     @GetMapping
     fun getProfile(): ResponseEntity<ProfileDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
         val count = profileService.getProfile(id = userId)
         return ResponseEntity.ok(count)
+    }
+
+    fun getUserIdFromContext(): Long {
+        return (SecurityContextHolder.getContext().authentication.principal as String).toLong()
     }
 }

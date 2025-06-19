@@ -5,6 +5,7 @@ import com.hyun.demo.word.dto.WordDTO
 import com.hyun.demo.word.dto.response.LearningHistoriesResponse
 import com.hyun.demo.word.service.LearningHistoryService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -15,7 +16,7 @@ class LearningHistoryController(
 
     @PostMapping
     fun createHistory(@RequestBody wordDTO: WordDTO): ResponseEntity<LearningHistoryDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
 //        if (authentication.name.toLong() != userId) {
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
@@ -27,7 +28,7 @@ class LearningHistoryController(
 
     @GetMapping
     fun getLearningHistory(@RequestParam("yearMonth") yearMonth: String): ResponseEntity<LearningHistoriesResponse> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
 //        if (authentication.name.toLong() != userId) {
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
@@ -40,9 +41,13 @@ class LearningHistoryController(
 
     @GetMapping("/count")
     fun getLearningHistoryCount(): ResponseEntity<Long> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
         val count = learningHistoryService.getWordHistoryCount(userId = userId)
         return ResponseEntity.ok(count)
+    }
+
+    fun getUserIdFromContext(): Long {
+        return (SecurityContextHolder.getContext().authentication.principal as String).toLong()
     }
 }

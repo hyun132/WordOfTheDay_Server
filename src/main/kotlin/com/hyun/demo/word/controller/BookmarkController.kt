@@ -4,6 +4,7 @@ import com.hyun.demo.word.dto.BookmarkDTO
 import com.hyun.demo.word.dto.BookmarksDTO
 import com.hyun.demo.word.service.BookmarkService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,7 +15,7 @@ class BookmarkController(
 
     @PostMapping
     fun createBookmark(@RequestBody bookmarkDTO: BookmarkDTO): ResponseEntity<BookmarkDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
         val result = bookmarkService.createBookMark(userId = userId, bookMark = bookmarkDTO)
         return ResponseEntity.ok(result)
@@ -22,7 +23,7 @@ class BookmarkController(
 
     @GetMapping
     fun getBookmarks(): ResponseEntity<BookmarksDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
         val list = bookmarkService.getAllBookMarks(userId = userId)
 
@@ -31,10 +32,14 @@ class BookmarkController(
 
     @DeleteMapping
     fun deleteBookmarks(@RequestBody bookmarkDTO: BookmarkDTO): ResponseEntity<BookmarkDTO> {
-        val userId = 1L
+        val userId = getUserIdFromContext()
 
         val list = bookmarkService.deleteBookMark(userId = userId, bookMark = bookmarkDTO)
 
         return ResponseEntity.ok(list)
+    }
+
+    fun getUserIdFromContext(): Long {
+        return (SecurityContextHolder.getContext().authentication.principal as String).toLong()
     }
 }
