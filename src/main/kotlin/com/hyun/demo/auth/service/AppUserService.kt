@@ -11,9 +11,10 @@ import com.hyun.demo.auth.repository.AppUserRepository
 import com.hyun.demo.auth.repository.RefreshTokenRepository
 import com.hyun.demo.auth.toDTO
 import com.hyun.demo.security.HashEncoder
-import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
@@ -26,8 +27,8 @@ class AppUserService(
     private val hashEncoder: HashEncoder
 ) {
     fun registerUser(request: RegisterAppUserRequest): AppUserDTO {
-        require(!appUserRepository.existsByEmail(request.email)) {
-            "이미 사용 중인 이메일입니다."
+        if (appUserRepository.existsByEmail(request.email)) {
+            throw ResponseStatusException(HttpStatusCode.valueOf(409), "이미 사용 중인 이메일입니다.")
         }
 
         val user = AppUser(
@@ -44,10 +45,10 @@ class AppUserService(
 
     fun login(loginRequest: LoginRequest): TokenPair? {
         val user = appUserRepository.findByEmail(loginRequest.email)
-            ?: throw BadCredentialsException("사용자 인증에 실패했습니다.")
+            ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "사용자 인증에 실패했습니다.")
 
-        check(hashEncoder.matches(loginRequest.password, user.password)) {
-            "사용자 인증에 실패했습니다."
+        if (!hashEncoder.matches(loginRequest.password, user.password)) {
+            throw ResponseStatusException(HttpStatusCode.valueOf(401), "사용자 인증에 실패했습니다.")
         }
 
         val newAccessToken = jwtService.generateAccessToken(user.id.toString())
@@ -61,23 +62,23 @@ class AppUserService(
     @Transactional
     fun refresh(refreshToken: String): TokenPair {
         if (!jwtService.validateRefreshToken(refreshToken)) {
-            throw IllegalArgumentException("Invalid refresh token.")
+            throw ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
         }
 
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val user = appUserRepository.findById(userId.toLong()).orElseThrow {
-            IllegalArgumentException("Invalid refresh token.")
+            ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
         }
 
         val hashed = hashToken(refreshToken)
         refreshTokenRepository.findByUserIdAndHashedToken(userId = userId.toLong(), hashedToken = hashed)
-            ?: throw IllegalArgumentException("Refresh token not recognized")
+            ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized")
 
         refreshTokenRepository.deleteByUserIdAndHashedToken(userId = userId.toLong(), hashed)
         val newAccessToken = jwtService.generateAccessToken(userId = userId)
         val newRefreshToken = jwtService.generateRefreshToken(userId = userId)
 
-        storeRefreshToken(userId.toLong(),newRefreshToken)
+        storeRefreshToken(userId.toLong(), newRefreshToken)
 
         return TokenPair(
             newAccessToken,
@@ -112,10 +113,10 @@ class AppUserService(
     @Transactional
     fun updatePassword(userId: Long, request: PasswordUpdateRequest): String {
         val user = appUserRepository.findById(userId)
-            .orElseThrow { BadCredentialsException("사용자 인증에 실패했습니다.") }
+            .orElseThrow { ResponseStatusException(HttpStatusCode.valueOf(401), "사용자 인증에 실패했습니다.") }
 
-        check(hashEncoder.matches(request.currentPassword, user.password)) {
-            "현재 비밀번호가 일치하지 않습니다."
+        if (!hashEncoder.matches(request.currentPassword, user.password)) {
+            throw ResponseStatusException(HttpStatusCode.valueOf(400), "현재 비밀번호가 일치하지 않습니다.")
         }
 
         user.password = hashEncoder.encode(request.newPassword)

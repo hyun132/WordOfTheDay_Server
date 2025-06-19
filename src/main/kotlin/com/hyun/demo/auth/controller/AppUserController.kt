@@ -5,6 +5,7 @@ import com.hyun.demo.auth.dto.request.LoginRequest
 import com.hyun.demo.auth.dto.request.PasswordUpdateRequest
 import com.hyun.demo.auth.dto.request.RefreshRequest
 import com.hyun.demo.auth.dto.request.RegisterAppUserRequest
+import com.hyun.demo.auth.dto.response.CheckEmailResponse
 import com.hyun.demo.auth.dto.response.TokenPair
 import com.hyun.demo.auth.dto.response.RegisterAppUserResponse
 import com.hyun.demo.auth.service.AppUserService
@@ -37,18 +38,14 @@ class AppUserController(
         )
     }
 
-    @GetMapping("/check-email?email={email}")
-    fun checkValidEmail(@PathVariable email: String): ResponseEntity<AppUserDTO> {
-        var userId = 1
-        val user = appUserService.getUser(email = email) ?: throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "사용자를 찾을 수 없습니다."
-        )
-        return ResponseEntity.ok(user)
+    @GetMapping("/check-email")
+    fun checkValidEmail(@RequestParam email: String): ResponseEntity<CheckEmailResponse> {
+        val available = !appUserService.checkEmailDuplication(email = email)
+        return ResponseEntity.ok(CheckEmailResponse(available))
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<TokenPair> {
+    fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<TokenPair> {
         val token = appUserService.login(loginRequest) ?: throw ResponseStatusException(
             HttpStatus.NOT_FOUND,
             "사용자를 찾을 수 없습니다."
@@ -64,16 +61,13 @@ class AppUserController(
 
 
     @PostMapping("/update")
-    fun updatePassword(@RequestBody updateRequest: PasswordUpdateRequest): ResponseEntity<UserInfoUpdateResponse> {
+    fun updatePassword(@Valid @RequestBody updateRequest: PasswordUpdateRequest): ResponseEntity<UserInfoUpdateResponse> {
         val userId = SecurityContextHolder.getContext().authentication.principal as String
-        val email = appUserService.updatePassword(userId.toLong(),updateRequest)
-        if (email == null) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.")
-        } else
-            return ResponseEntity.ok(
-                UserInfoUpdateResponse(
-                    email = email,
-                )
+        val email = appUserService.updatePassword(userId.toLong(), updateRequest)
+        return ResponseEntity.ok(
+            UserInfoUpdateResponse(
+                email = email,
             )
+        )
     }
 }
