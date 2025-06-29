@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class AppUserService(
@@ -41,6 +42,11 @@ class AppUserService(
 
     fun getUser(email: String): AppUserDTO? {
         return appUserRepository.findByEmail(email)?.toDTO()
+    }
+
+    fun getUser(userId: Long): AppUserDTO {
+        return appUserRepository.findById(userId)
+            .getOrElse { throw ResponseStatusException(HttpStatusCode.valueOf(401), "사용자 인증에 실패했습니다.") }.toDTO()
     }
 
     fun login(loginRequest: LoginRequest): TokenPair? {

@@ -5,6 +5,7 @@ import com.hyun.demo.auth.dto.request.LoginRequest
 import com.hyun.demo.auth.dto.request.PasswordUpdateRequest
 import com.hyun.demo.auth.dto.request.RefreshRequest
 import com.hyun.demo.auth.dto.request.RegisterAppUserRequest
+import com.hyun.demo.auth.dto.response.AppUserResponse
 import com.hyun.demo.auth.dto.response.CheckEmailResponse
 import com.hyun.demo.auth.dto.response.TokenPair
 import com.hyun.demo.auth.dto.response.RegisterAppUserResponse
@@ -32,6 +33,24 @@ class AppUserController(
 
         return ResponseEntity.ok(
             RegisterAppUserResponse(
+                email = user.email,
+                createdAt = user.createdAt
+            )
+        )
+    }
+
+    @GetMapping("/me")
+    fun getUserInfo():ResponseEntity<AppUserResponse>{
+        val userId = SecurityContextHolder.getContext().authentication.principal as String
+        println("userId:$userId")
+        if (userId == "anonymousUser") throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "사용자를 찾을 수 없습니다."
+        )
+        val user = appUserService.getUser(userId.toLong())
+
+        return ResponseEntity.ok(
+            AppUserResponse(
                 email = user.email,
                 createdAt = user.createdAt
             )
