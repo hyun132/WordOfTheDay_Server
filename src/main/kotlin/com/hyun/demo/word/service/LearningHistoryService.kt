@@ -8,6 +8,7 @@ import com.hyun.demo.word.entity.LearningHistory
 import com.hyun.demo.word.repository.LearningHistoryRepository
 import com.hyun.demo.word.toDTO
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalTime
 import java.time.YearMonth
 
@@ -32,7 +33,17 @@ class LearningHistoryService(private val learningHistoryRepository: LearningHist
         return LearningHistoriesResponse(learningHistories = map, yearMonth)
     }
 
+    @Transactional
     fun createWordHistory(userId: Long, word: WordDTO): LearningHistoryDTO {
+        var saved = learningHistoryRepository.findByUserIdAndWordOrderByCreatedDateTimeDesc(userId, word = word.word)
+        var lastWord = saved[0]
+        if (lastWord.word == word.word && lastWord.isDone != Progress.COMPLETED){
+            val update = lastWord.copy(isDone = Progress.COMPLETED)
+            update.createdDateTime = lastWord.createdDateTime
+
+            return learningHistoryRepository.save(update).toDTO()
+        }
+
         return learningHistoryRepository.save(
             LearningHistory(
                 word = word.word,

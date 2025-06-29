@@ -3,6 +3,7 @@ package com.hyun.demo.word.service
 import com.hyun.demo.word.dto.SentenceDTO
 import com.hyun.demo.word.dto.SentencesDTO
 import com.hyun.demo.word.dto.WordDTO
+import com.hyun.demo.word.entity.LearningHistory
 import com.hyun.demo.word.repository.LearningHistoryRepository
 import com.hyun.demo.word.repository.OllamaChatClient
 import com.hyun.demo.word.toDTO
@@ -32,7 +33,7 @@ class ChatService(
             val savedWord = list.first()
             savedWord.word = word.word
         } else {
-//            repository.save(LearningHistory(userId = userId, word = word.word))
+            repository.save(LearningHistory(userId = userId, word = word.word))
         }
 
         return word.toDTO()
@@ -49,7 +50,7 @@ class ChatService(
             }
         }
         val response = chatClient.getWord(userId, subject, difficulty)
-//        repository.save(LearningHistory(userId = userId, word = response.word))
+        repository.save(LearningHistory(userId = userId, word = response.word))
 
         return response.toDTO()
     }
