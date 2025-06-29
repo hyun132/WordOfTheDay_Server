@@ -33,7 +33,7 @@ class OllamaChatClient(private val chatClient: ChatClient) {
             messages = listOf(
                 OllamaMessage(
                     role = "user",
-                    content = "Give me another word about $subject for $difficulty students excluding duplicates. Without any modifiers or explanations. Just one word in dictionary."
+                    content = "Find one of the $subject-related words in the dictionary for $difficulty students. Without any modifiers or explanations. Just one word in dictionary."
                 )
             ),
             temperature = 1.2
@@ -55,15 +55,22 @@ class OllamaChatClient(private val chatClient: ChatClient) {
             String::class.java
         ).body ?: ""
 
-        val firstLine = responseStr.lineSequence().firstOrNull {
-            it.contains("message")
-        } ?: ""
+        println(responseStr)
 
         val objectMapper = jacksonObjectMapper()
-        val jsonNode = objectMapper.readTree(firstLine)
-        val word = jsonNode["message"]?.get("content")?.asText() ?: ""
+        val fullWord = responseStr
+            .lineSequence()
+            .mapNotNull { line ->
+                try {
+                    val node = objectMapper.readTree(line)
+                    node["message"]?.get("content")?.asText()
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            .joinToString("") // content 문자열을 이어붙임
 
-        return Word(word = word)
+        return Word(word = fullWord)
     }
 
     fun getTodaysWord(userId: Long, subject: String, difficulty: String): Word {
