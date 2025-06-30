@@ -4,6 +4,7 @@ import com.hyun.demo.auth.dto.AppUserDTO
 import com.hyun.demo.auth.dto.request.LoginRequest
 import com.hyun.demo.auth.dto.request.PasswordUpdateRequest
 import com.hyun.demo.auth.dto.request.RegisterAppUserRequest
+import com.hyun.demo.auth.dto.request.ResetPasswordRequest
 import com.hyun.demo.auth.dto.response.TokenPair
 import com.hyun.demo.auth.entity.AppUser
 import com.hyun.demo.auth.entity.RefreshToken
@@ -124,6 +125,15 @@ class AppUserService(
         if (!hashEncoder.matches(request.currentPassword, user.password)) {
             throw ResponseStatusException(HttpStatusCode.valueOf(400), "현재 비밀번호가 일치하지 않습니다.")
         }
+
+        user.password = hashEncoder.encode(request.newPassword)
+        return user.email
+    }
+
+    @Transactional
+    fun resetPassword(request: ResetPasswordRequest): String {
+        val user = appUserRepository.findByEmail(request.email)
+            ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "사용자 인증에 실패했습니다.")
 
         user.password = hashEncoder.encode(request.newPassword)
         return user.email
