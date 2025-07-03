@@ -1,6 +1,6 @@
 package com.hyun.demo.auth.dto.request
 
-data class EmailVerifyRequest(
+data class VerifyCodeRequest(
     val email: String,
     val code: String
 )

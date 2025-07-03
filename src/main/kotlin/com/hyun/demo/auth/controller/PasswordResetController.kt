@@ -1,8 +1,9 @@
 package com.hyun.demo.auth.controller
 
 import com.hyun.demo.auth.dto.request.EmailRequest
-import com.hyun.demo.auth.dto.request.EmailVerifyRequest
+import com.hyun.demo.auth.dto.request.VerifyCodeRequest
 import com.hyun.demo.auth.dto.request.ResetPasswordRequest
+import com.hyun.demo.auth.dto.response.VerifyCodeResponse
 import com.hyun.demo.auth.service.AppUserService
 import com.hyun.demo.auth.service.EmailService
 import org.springframework.data.redis.core.StringRedisTemplate
@@ -30,14 +31,14 @@ class PasswordResetController(
     }
 
     @PostMapping("/verify")
-    fun verifyCode(@RequestBody request: EmailVerifyRequest): ResponseEntity<Any> {
+    fun verifyCode(@RequestBody request: VerifyCodeRequest): ResponseEntity<VerifyCodeResponse> {
         val saved = redisTemplate.opsForValue().get("verify:${request.email}")
         if (saved == request.code) {
             redisTemplate.delete("verify:${request.email}")
             redisTemplate.opsForValue().set("verified:${request.email}", "true", 30, TimeUnit.MINUTES)
-            return ResponseEntity.ok(mapOf("verified" to true))
+            return ResponseEntity.ok(VerifyCodeResponse(verified = true))
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("verified" to false))
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(VerifyCodeResponse(verified = false))
     }
 
     @PostMapping("/password-reset")
