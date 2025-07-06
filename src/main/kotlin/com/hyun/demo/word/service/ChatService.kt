@@ -33,7 +33,7 @@ class ChatService(
             val savedWord = list.first()
             savedWord.word = word.word
         } else {
-            repository.save(LearningHistory(userId = userId, word = word.word))
+            repository.save(LearningHistory(userId = userId, word = word.word, meaning = word.meaning))
         }
 
         return word.toDTO()
@@ -46,11 +46,11 @@ class ChatService(
         if (list.isNotEmpty()) {
             val savedWord = list.firstOrNull()
             if (savedWord != null) {
-                return WordDTO(word = savedWord.word)
+                return WordDTO(word = savedWord.word, savedWord.meaning)
             }
         }
         val response = chatClient.getWord(userId, subject, difficulty)
-        repository.save(LearningHistory(userId = userId, word = response.word))
+        repository.save(LearningHistory(userId = userId, word = response.word, meaning = response.meaning))
 
         return response.toDTO()
     }

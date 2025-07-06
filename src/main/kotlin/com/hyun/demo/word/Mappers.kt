@@ -28,7 +28,8 @@ fun Profile.toDTO(): ProfileDTO {
 
 fun Word.toDTO(): WordDTO {
     return WordDTO(
-        word = word
+        word = word,
+        meaning = meaning
     )
 }
 

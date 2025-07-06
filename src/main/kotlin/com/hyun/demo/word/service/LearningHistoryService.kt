@@ -47,6 +47,7 @@ class LearningHistoryService(private val learningHistoryRepository: LearningHist
         return learningHistoryRepository.save(
             LearningHistory(
                 word = word.word,
+                meaning = word.meaning,
                 userId = userId,
                 isDone = Progress.COMPLETED
             )

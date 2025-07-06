@@ -15,7 +15,7 @@ data class LearningHistory(
     val userId: Long,
 
     var word: String,
-
+    var meaning: String,
     @Enumerated(EnumType.STRING)
     val isDone:Progress = Progress.NOT_STARTED
 ) : BaseEntity()

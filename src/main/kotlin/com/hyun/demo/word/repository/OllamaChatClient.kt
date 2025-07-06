@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
@@ -29,17 +30,20 @@ class OllamaChatClient(private val chatClient: ChatClient) {
     fun getWord(userId: Long, subject: String, difficulty: String): Word {
 
         val request = OllamaRequest(
-            model = "llama3.2",
+            model = "gemma",
             messages = listOf(
                 OllamaMessage(
                     role = "user",
-                    content = "Find one of the $subject-related words in the dictionary for $difficulty students. Without any modifiers or explanations. Just one word in dictionary."
+                    content = "Find one of the $subject-related words in the dictionary for $difficulty students. Without any modifiers or explanations. Just one english word with its korean meaning in the dictionary. Respond only with a valid String like this : " +
+                            "Word - 단어"
                 )
             ),
             temperature = 1.2
         )
 
-        val restTemplate = RestTemplate()
+        val restTemplate = RestTemplate().apply {
+            messageConverters.add(0, StringHttpMessageConverter(Charsets.UTF_8))
+        }
 
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
@@ -70,7 +74,9 @@ class OllamaChatClient(private val chatClient: ChatClient) {
             }
             .joinToString("") // content 문자열을 이어붙임
 
-        return Word(word = fullWord)
+        val splited = fullWord.split(" - ")
+        println(fullWord)
+        return Word(word = splited[0].trim(), meaning = splited[1].trim())
     }
 
     fun getTodaysWord(userId: Long, subject: String, difficulty: String): Word {
@@ -81,7 +87,7 @@ class OllamaChatClient(private val chatClient: ChatClient) {
             .call()
             .content() ?: ""
 
-        return Word(word = response)
+        return Word(word = response,"")
     }
 
     fun getSentences(word: String, difficulty: String): List<String> {
