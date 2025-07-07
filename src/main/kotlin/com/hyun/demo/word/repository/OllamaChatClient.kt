@@ -28,14 +28,17 @@ class OllamaChatClient(private val chatClient: ChatClient) {
 
     @Transactional
     fun getWord(userId: Long, subject: String, difficulty: String): Word {
+        val randomPromptNoise = listOf("Give", "Show", "Can you give","Please show").random()
+        val letter = ('A'..'Z').random()
 
         val request = OllamaRequest(
             model = "gemma",
             messages = listOf(
                 OllamaMessage(
                     role = "user",
-                    content = "Find one of the $subject-related words in the dictionary for $difficulty students. Without any modifiers or explanations. Just one english word with its korean meaning in the dictionary. Respond only with a valid String like this : " +
-                            "Word - 단어"
+                    content = "$randomPromptNoise me one random $subject-related word suitable for $difficulty-level English learners." +
+                            "The word must start with the letter '$letter'" +
+                            "No explanation. Only a single English word followed by its Korean meaning, without using any markdown, bold, asterisks, or quotation marks. For example:'Train - 기차'. Choose differently every time."
                 )
             ),
             temperature = 1.2
@@ -87,12 +90,13 @@ class OllamaChatClient(private val chatClient: ChatClient) {
             .call()
             .content() ?: ""
 
-        return Word(word = response,"")
+        return Word(word = response, "")
     }
 
-    fun getSentences(word: String, difficulty: String): List<String> {
+    fun getSentences(word: String, meaning: String, difficulty: String): List<String> {
         val prompt = """
 Return 5 useful English sentences using the word '$word' for $difficulty learners.
+However, the sentence must be one in which the word word is used in the sense of '$meaning'.
 Respond only with a valid JSON like below:
 
 [

@@ -32,6 +32,7 @@ class ChatService(
         if (list.isNotEmpty()) {
             val savedWord = list.first()
             savedWord.word = word.word
+            savedWord.meaning = word.meaning
         } else {
             repository.save(LearningHistory(userId = userId, word = word.word, meaning = word.meaning))
         }
@@ -55,8 +56,8 @@ class ChatService(
         return response.toDTO()
     }
 
-    fun getSentences(word: String, difficulty: String): SentencesDTO {
-        val list = chatClient.getSentences(word, difficulty).map { SentenceDTO(sentence = it) }
+    fun getSentences(word: String, meaning: String, difficulty: String): SentencesDTO {
+        val list = chatClient.getSentences(word, meaning, difficulty).map { SentenceDTO(sentence = it) }
         return SentencesDTO(sentences = list)
     }
 }

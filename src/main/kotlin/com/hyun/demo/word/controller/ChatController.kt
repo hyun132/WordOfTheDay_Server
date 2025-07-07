@@ -42,9 +42,10 @@ class ChatController(
     @GetMapping("/sentence")
     fun getSentences(
         @RequestParam("word") word: String,
+        @RequestParam("meaning") meaning: String,
         @RequestParam("difficulty") difficulty: String
     ): ResponseEntity<SentencesDTO> {
-        return ResponseEntity.ok(service.getSentences(word, difficulty))
+        return ResponseEntity.ok(service.getSentences(word, meaning, difficulty))
     }
 
     fun getUserIdFromContext(): Long {
