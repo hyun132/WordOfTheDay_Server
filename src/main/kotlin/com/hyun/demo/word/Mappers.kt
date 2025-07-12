@@ -22,7 +22,8 @@ fun Profile.toDTO(): ProfileDTO {
     return ProfileDTO(
         username = username,
         difficulty = difficulty,
-        topic = topic
+        topic = topic,
+        createdAt = createdDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     )
 }
 
