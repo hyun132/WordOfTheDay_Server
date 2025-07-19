@@ -36,6 +36,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA 사용
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.h2database:h2") // H2 데이터베이스 사용
+    implementation("mysql:mysql-connector-java:8.0.28")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("com.google.cloud:google-cloud-speech:4.57.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
@@ -47,6 +48,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
