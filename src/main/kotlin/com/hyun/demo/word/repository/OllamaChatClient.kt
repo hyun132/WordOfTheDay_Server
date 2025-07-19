@@ -56,7 +56,7 @@ class OllamaChatClient(private val chatClient: ChatClient) {
         val entity = HttpEntity(request, headers)
 
         val responseStr = restTemplate.exchange(
-            "http://localhost:11434/api/chat",
+성            "https://finer-oddly-penguin.ngrok-free.app/api/chat",
             HttpMethod.POST,
             entity,
             String::class.java
@@ -108,11 +108,54 @@ Respond only with a valid JSON like below:
 ]
 """
 
-        val raw = chatClient
-            .prompt()
-            .user(prompt)
-            .call()
-            .content()
+        val request = OllamaRequest(
+            model = "gemma",
+            messages = listOf(
+                OllamaMessage(
+                    role = "user",
+                    content = prompt
+                )
+            ),
+            temperature = 1.2
+        )
+        val restTemplate = RestTemplate().apply {
+            messageConverters.add(0, StringHttpMessageConverter(Charsets.UTF_8))
+        }
+
+        val headers = HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            accept = listOf(MediaType.ALL) // x-ndjson 허용
+        }
+
+        val entity = HttpEntity(request, headers)
+
+        val responseStr = restTemplate.exchange(
+            "https://finer-oddly-penguin.ngrok-free.app/api/chat",
+            HttpMethod.POST,
+            entity,
+            String::class.java
+        ).body ?: ""
+
+        println(responseStr)
+
+        val objectMapper = jacksonObjectMapper()
+        val raw = responseStr
+            .lineSequence()
+            .mapNotNull { line ->
+                try {
+                    val node = objectMapper.readTree(line)
+                    node["message"]?.get("content")?.asText()
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            .joinToString("") // content 문자열을 이어붙임
+
+//        val raw = chatClient
+//            .prompt()
+//            .user(prompt)
+//            .call()
+//            .content()
 
         val fixedRaw = raw?.substringAfter("[")?.let { "[" + it } ?: "[]"
         val mapper = jacksonObjectMapper()
