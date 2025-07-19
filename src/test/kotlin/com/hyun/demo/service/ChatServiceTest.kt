@@ -1,6 +1,6 @@
 package com.hyun.demo.service
 
-import com.hyun.demo.service.word.ChatService
+import com.hyun.demo.word.service.ChatService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -11,11 +11,11 @@ import org.springframework.ai.chat.client.ChatClient
 @ExtendWith(MockitoExtension::class)
 class ChatServiceTest {
 
-    @InjectMocks
-    lateinit var chatService: ChatService
-
-    @Mock
-    lateinit var chatClient: ChatClient
+//    @InjectMocks
+//    lateinit var chatService: ChatService
+//
+//    @Mock
+//    lateinit var chatClient: ChatClient
 
     @Test
     fun filterResponseData() {

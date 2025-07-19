@@ -56,7 +56,7 @@ class OllamaChatClient(private val chatClient: ChatClient) {
         val entity = HttpEntity(request, headers)
 
         val responseStr = restTemplate.exchange(
-성            "https://finer-oddly-penguin.ngrok-free.app/api/chat",
+            "https://finer-oddly-penguin.ngrok-free.app/api/chat",
             HttpMethod.POST,
             entity,
             String::class.java
