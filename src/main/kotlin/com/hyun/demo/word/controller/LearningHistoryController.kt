@@ -34,7 +34,7 @@ class LearningHistoryController(
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
 //        }
 
-        val list = learningHistoryService.getAllHistory(userId = userId, yearMonth)
+        val list = learningHistoryService.getAllCompletedHistory(userId = userId, yearMonth)
 
         return ResponseEntity.ok(list)
     }

@@ -15,29 +15,38 @@ import java.time.YearMonth
 @Service
 class LearningHistoryService(private val learningHistoryRepository: LearningHistoryRepository) {
 
-    fun getAllHistory(userId: Long): List<LearningHistoryDTO> {
+    fun getAllCompletedHistory(userId: Long): List<LearningHistoryDTO> {
         return learningHistoryRepository
             .findAllByUserIdOrderByCreatedDateTimeDesc(userId = userId)
             .map { it.toDTO() }
     }
 
 
-    fun getAllHistory(userId: Long, yearMonth: String): LearningHistoriesResponse {
+    fun getAllCompletedHistory(userId: Long, yearMonth: String): LearningHistoriesResponse {
         val yearMonthArray = yearMonth.split("-")
         val yearMonthData = YearMonth.of(yearMonthArray[0].toInt(), yearMonthArray[1].toInt())
         val start = yearMonthData.atDay(1).atStartOfDay()
         val end = yearMonthData.atEndOfMonth().atTime(LocalTime.MAX)
         val map = learningHistoryRepository
-            .findAllByUserIdAndCreatedDateTimeBetweenOrderByCreatedDateTimeDesc(userId = userId, start, end)
+            .findAllByUserIdAndIsDoneAndCreatedDateTimeBetweenOrderByCreatedDateTimeDesc(
+                userId = userId,
+                isDone = Progress.COMPLETED,
+                start,
+                end,
+            )
             .map { it.toDTO() }
         return LearningHistoriesResponse(learningHistories = map, yearMonth)
     }
 
     @Transactional
     fun createWordHistory(userId: Long, word: WordDTO): LearningHistoryDTO {
-        var saved = learningHistoryRepository.findByUserIdAndWordOrderByCreatedDateTimeDesc(userId, word = word.word)
+        var saved = learningHistoryRepository.findByUserIdAndWordAndMeaningOrderByCreatedDateTimeDesc(
+            userId,
+            word = word.word,
+            meaning = word.meaning
+        )
         var lastWord = saved[0]
-        if (lastWord.word == word.word && lastWord.isDone != Progress.COMPLETED){
+        if (lastWord.word == word.word && lastWord.meaning == word.meaning && lastWord.isDone != Progress.COMPLETED) {
             val update = lastWord.copy(isDone = Progress.COMPLETED)
             update.createdDateTime = lastWord.createdDateTime
 
