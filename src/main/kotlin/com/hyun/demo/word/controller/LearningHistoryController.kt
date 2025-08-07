@@ -47,6 +47,20 @@ class LearningHistoryController(
         return ResponseEntity.ok(count)
     }
 
+    @GetMapping("/current_streak")
+    fun getCurrentStreak(): ResponseEntity<Int> {
+        val userId = getUserIdFromContext()
+        val streak = learningHistoryService.getCurrentStreakDays(userId = userId)
+        return ResponseEntity.ok(streak)
+    }
+
+    @GetMapping("/longest_streak")
+    fun getLongestStreak(): ResponseEntity<Int> {
+        val userId = getUserIdFromContext()
+        val streak = learningHistoryService.getLongestStreakDays(userId = userId)
+        return ResponseEntity.ok(streak)
+    }
+
     fun getUserIdFromContext(): Long {
         return (SecurityContextHolder.getContext().authentication.principal as String).toLong()
     }

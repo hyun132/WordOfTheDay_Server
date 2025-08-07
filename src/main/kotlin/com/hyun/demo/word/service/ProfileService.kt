@@ -24,8 +24,12 @@ class ProfileService(private val profileRepository: ProfileRepository) {
         return profileRepository.save(profile).toDTO()
     }
 
-    fun getProfile(id: Long): ProfileDTO? {
-        return profileRepository.findById(id).getOrNull()?.toDTO()
+    fun getProfile(id: Long): ProfileDTO {
+        return profileRepository.findById(id).getOrElse {
+            throw ResponseStatusException(
+                HttpStatusCode.valueOf(404), "데이터가 없습니다"
+            )
+        }.toDTO()
     }
 
     @Transactional

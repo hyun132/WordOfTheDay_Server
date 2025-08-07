@@ -66,4 +66,12 @@ class LearningHistoryService(private val learningHistoryRepository: LearningHist
     fun getWordHistoryCount(userId: Long): Long {
         return learningHistoryRepository.countByUserIdAndIsDone(userId = userId, isDone = Progress.COMPLETED)
     }
+
+    fun getLongestStreakDays(userId: Long): Int {
+        return learningHistoryRepository.findLongestLearningStreak(userId) ?: 0
+    }
+
+    fun getCurrentStreakDays(userId: Long): Int {
+        return learningHistoryRepository.findCurrentLearningStreak(userId) ?: 0
+    }
 }

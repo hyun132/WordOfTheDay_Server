@@ -2,6 +2,7 @@ package com.hyun.demo.word.controller
 
 import com.hyun.demo.word.dto.ProfileDTO
 import com.hyun.demo.word.dto.request.ProfileUpdateRequest
+import com.hyun.demo.word.service.LearningHistoryService
 import com.hyun.demo.word.service.ProfileService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/profile")
 class ProfileController(
-    private val profileService: ProfileService
+    private val profileService: ProfileService,
+    private val learningHistoryService: LearningHistoryService
 ) {
 
     @PostMapping
@@ -33,8 +35,9 @@ class ProfileController(
     fun getProfile(): ResponseEntity<ProfileDTO> {
         val userId = getUserIdFromContext()
 
-        val count = profileService.getProfile(id = userId)
-        return ResponseEntity.ok(count)
+        val profile = profileService.getProfile(id = userId)
+        val longestStreak = learningHistoryService.getLongestStreakDays(userId = userId)
+        return ResponseEntity.ok(profile.copy(longestStreak = longestStreak))
     }
 
     fun getUserIdFromContext(): Long {
