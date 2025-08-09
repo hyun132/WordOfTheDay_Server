@@ -7,10 +7,12 @@ import com.hyun.demo.word.dto.request.ProfileUpdateRequest
 import com.hyun.demo.word.entity.Profile
 import com.hyun.demo.word.repository.ProfileRepository
 import com.hyun.demo.word.toDTO
+import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
-import kotlin.jvm.optionals.getOrNull
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class ProfileService(private val profileRepository: ProfileRepository) {
@@ -33,15 +35,19 @@ class ProfileService(private val profileRepository: ProfileRepository) {
     }
 
     @Transactional
-    fun updateProfile(id: Long, request: ProfileUpdateRequest): ProfileDTO? {
-        val profile = profileRepository.findById(id).getOrNull() ?: return null
+    fun updateProfile(id: Long, request: ProfileUpdateRequest): ProfileDTO {
+        val profile = profileRepository.findById(id).getOrElse {
+            throw ResponseStatusException(
+                HttpStatusCode.valueOf(404), "데이터가 없습니다"
+            )
+        }
 
         request.username?.let { profile.username = it }
         request.topic?.let { profile.topic = it }
         request.difficulty?.toDifficulty().let {
             if (it != null) {
                 profile.difficulty = it
-            } else return null
+            }
         }
 
         return profile.toDTO()
