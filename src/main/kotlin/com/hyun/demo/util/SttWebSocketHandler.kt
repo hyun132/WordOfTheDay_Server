@@ -12,13 +12,14 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.BinaryWebSocketHandler
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 @Component
 class SttWebSocketHandler : BinaryWebSocketHandler() {
 
-    private val client: SpeechClient = SpeechClient.create()
-    private val activeClients = mutableMapOf<String, ClientStream<StreamingRecognizeRequest>>()
+    private val client: SpeechClient by lazy { SpeechClient.create() }
+    private val activeClients = ConcurrentHashMap<String, ClientStream<StreamingRecognizeRequest>>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val responseObserver = object : ResponseObserver<StreamingRecognizeResponse> {
